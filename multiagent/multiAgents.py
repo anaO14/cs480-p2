@@ -78,12 +78,12 @@ class ReflexAgent(Agent):
 
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
+        newPacPos = successorGameState.getPacmanPosition()
         newGhostStates = successorGameState.getGhostStates()
+        newGhostPos = successorGameState.getGhostPositions()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         newNumFood = successorGameState.getNumFood()
-        #coordPairFood = successorGameState.hasFood()
+        newFood = successorGameState.getFood()
         coordPairFood = newFood.asList()
         
 
@@ -91,22 +91,25 @@ class ReflexAgent(Agent):
         score = successorGameState.getScore()
 
         # use manhattan distance formula to calcualte the distance between pacman, food, and ghosts
-
-        smallestDistance = float('inf')
+        smallestFoodDistance = float('inf')
+        smallestGhostDistance = float('inf')
 
         # check if pacman is close to food 
-        if not coordPairFood:
-            print("list is empty")
-            smallestDistance = float('inf')
+        #check if the list is empty 
+        if coordPairFood:
+            for coordinate in coordPairFood:
+                pacAndFoodDistance : int = util.manhattanDistance(newPacPos, coordinate)
+                if smallestFoodDistance > pacAndFoodDistance:
+                    smallestFoodDistance = pacAndFoodDistance
 
+        # check if pacman is close to ghosts 
+        # check whether ghost is active or scared 
+        for ghostState in newGhostStates:
+                
+            pacAndGhostDistance : int = util.manhattanDistance(newPacPos, newGhostStates)
+            
 
-        for coordinate in coordPairFood:
-            pacAndFoodDistance : int = util.manhattanDistance(newPos, coordinate)
-            if smallestDistance > pacAndFoodDistance:
-                smallestDistance = pacAndFoodDistance
-
-        # check if pacman is close to food AND ghosts 
-        #pacAndGhostDistance : int = util.manhattanDistance(newPos, newFood)
+            
 
 
 
@@ -120,7 +123,7 @@ class ReflexAgent(Agent):
         print("grid of new food:", newFood)
         print("number of new food:", newNumFood)
         print("coordinate pair of new food:", coordPairFood)
-        print("position of pacman after moving:", newPos)
+        print("position of pacman after moving:", newPacPos)
         print("number of moves that each ghost will remain scared after pacman ate a power pallet:", newScaredTimes)
         print("new ghost states: ", newGhostStates)
 
