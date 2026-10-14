@@ -230,6 +230,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     lowestValue = successorValue
             
         return lowestValue
+
+        
+
     
 
     def getAction(self, gameState: GameState):
@@ -270,9 +273,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 highestValue = successorValue
                 bestAction = action
 
-
         return bestAction
-
 
         util.raiseNotDefined()
 
@@ -436,7 +437,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             v += p * self.value(successor, next_agent, next_depth) #redirect this value to decide if we use exp or max
         
         return v 
-        #util.raiseNotDefined()
+    #util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
@@ -444,9 +445,45 @@ def betterEvaluationFunction(currentGameState: GameState):
     evaluation function (question 5).
 
     DESCRIPTION: <write something here so we know what you did>
+
+    calculate the score by 
+    adding the curr score - 500 if close to a ghost + add mindistance to food as r - total food left - total capsules left
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    curr_score = currentGameState.getScore()
+    capsules_available = currentGameState.getCapsules()
+    ghosts_positions = currentGameState.getGhostPositions() #this is a list of postions (x, y)
+    pacman_position = currentGameState.getPacmanPosition()
+    food_available = currentGameState.getFood().asList()
+
+    total_score = curr_score
+
+    for position in ghosts_positions:
+          
+          xy1 = position
+
+          ghost_distance = abs(xy1[0] - pacman_position[0]) + abs(xy1[1] - pacman_position[1])
+
+          if ghost_distance < 1:
+            total_score -= 500
+
+    min_distance = 100000
+
+    for position in food_available:
+              
+              xy1 = position
+
+              min_distance = min(abs(xy1[0] - pacman_position[0]) + abs(xy1[1] - pacman_position[1]), min_distance)
+
+    total_score += 10.0 / min_distance
+             
+
+    total_score -= len(capsules_available) 
+    total_score -= len(food_available) 
+
+    return total_score
+    
 
 # Abbreviation
 better = betterEvaluationFunction
