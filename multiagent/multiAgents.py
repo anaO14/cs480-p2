@@ -11,9 +11,13 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+# Ana Ortiz 01524018
+# Alexa Zambrano 
+
 
 from util import manhattanDistance
 from game import Directions
+from game import Grid
 import random, util
 
 from game import Agent
@@ -67,14 +71,59 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
+        
+        # food nearby: makes move more appealing 
+        # ghost nearby: makes move less appealing 
+        # scared ghost nearby: makes move more appealing 
+
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        newNumFood = successorGameState.getNumFood()
+        #coordPairFood = successorGameState.hasFood()
+        coordPairFood = newFood.asList()
+        
 
-        "*** YOUR CODE HERE ***"
+        score: int
+        score = successorGameState.getScore()
+
+        # use manhattan distance formula to calcualte the distance between pacman, food, and ghosts
+
+        smallestDistance = float('inf')
+
+        # check if pacman is close to food 
+        if not coordPairFood:
+            print("list is empty")
+            smallestDistance = float('inf')
+
+
+        for coordinate in coordPairFood:
+            pacAndFoodDistance : int = util.manhattanDistance(newPos, coordinate)
+            if smallestDistance > pacAndFoodDistance:
+                smallestDistance = pacAndFoodDistance
+
+        # check if pacman is close to food AND ghosts 
+        #pacAndGhostDistance : int = util.manhattanDistance(newPos, newFood)
+
+
+
+        # something good: being closer to food -> add to evaluation 
+
+        # something not good: being close to an active ghost -> subtract from the evaluation 
+        
+
+
+
+        print("grid of new food:", newFood)
+        print("number of new food:", newNumFood)
+        print("coordinate pair of new food:", coordPairFood)
+        print("position of pacman after moving:", newPos)
+        print("number of moves that each ghost will remain scared after pacman ate a power pallet:", newScaredTimes)
+        print("new ghost states: ", newGhostStates)
+
         return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState: GameState):
@@ -108,9 +157,47 @@ class MultiAgentSearchAgent(Agent):
         self.depth = int(depth)
 
 class MinimaxAgent(MultiAgentSearchAgent):
-    """
-    Your minimax agent (question 2)
-    """
+        
+    # max value implementation - handles pacman's turn
+    # compares the values of possible successor states and returns the highest
+    def maxValue(gameState: GameState, agentIndex: int, currentDepth: int):
+    
+        return v
+    
+    
+    # min value implementation - ghosts 
+    # compares the values of possible successor states and returns the lowest
+    def minValue(gameState: GameState, agentIndex: int, currentDepth: int):
+
+
+        return v
+    
+
+
+    # value implementation 
+    # first checks whether the search should stop: depth limit is reached OR game has ended - pacman wins or loses before that limit 
+    # when either happens, stop exploring that branch and use self.evaluationFunction to score its current state 
+    # if pacmans's turn -> use MAX value
+    # else it's ghost's turn -> use MIN value 
+    # current depth = completed rounds along this branch 
+    def value(self, gameState: GameState, agentIndex: int, currentDepth: int):
+
+        # check if the game has ended 
+        # check if the current depth reaches or exceeds the limit 
+        # return evaluation score for the current state 
+        if gameState.isWin() or gameState.isLose() or currentDepth >=  self.depth:
+            return self.evaluationFunction
+        
+        # if stopping check is false, decide whose turn it is
+
+        # pacman's turn 
+        if agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, currentDepth)
+        # ghost's turn 
+        else:
+            return self.minValue(gameState, agentIndex, currentDepth)
+
+    
 
     def getAction(self, gameState: GameState):
         """
