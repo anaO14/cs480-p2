@@ -109,14 +109,12 @@ class ReflexAgent(Agent):
         total_score += 10.0 / min_distance
             
 
-<<<<<<< HEAD
         #print("grid of new food:", newFood)
         #print("number of new food:", newNumFood)
         #print("coordinate pair of new food:", coordPairFood)
         #print("position of pacman after moving:", newPacPos)
         #print("number of moves that each ghost will remain scared after pacman ate a power pallet:", newScaredTimes)
         #print("new ghost states: ", newGhostStates)
-=======
         total_score -= newNumFood
 
         
@@ -126,7 +124,6 @@ class ReflexAgent(Agent):
         print("position of pacman after moving:", newPacPos)
         print("number of moves that each ghost will remain scared after pacman ate a power pallet:", newScaredTimes)
         print("new ghost states: ", newGhostStates)'''
->>>>>>> fd399a522598225db33407b7e7f6b9566367d3a8
 
         return total_score
 
