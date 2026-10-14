@@ -252,8 +252,143 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+       
+
+        """
+
+        self.depth = search depth or like rounds 
+        self.evalutaionFunction = to score a game state when 
+        gameState = where the game is at
+        0 = pacman
+
+        this method returns the final action based on what it gets 
+        
+        
+        """
+
+        legal_moves = gameState.getLegalActions(0); 
+        best_move = None;
+        best_score  = float('-inf');
+
+        for action in legal_moves:
+
+            futureState = gameState.generateSuccessor(0, action)
+
+            score = self.value(futureState, agent=1, depth=0)
+
+            if score > best_score:
+
+                best_score = score
+                best_move = action
+
+        return best_move
+
+
+
+
+
+    def value (self, gameState, agent, depth):
+        '''
+        pseudocode from slides:
+        
+                def value (state):
+                if the state is a terminal state: 
+                    return the state's utility 
+                    if the next agent is MAX: 
+                    return max-value(state) 
+                    if the next agent is EXP: 
+                    return exp-value(state)
+        '''
+        #if terminated
+        if gameState.isLose() or gameState.isWin() or depth == self.depth:
+            return self.evaluationFunction(gameState) #share the current score 
+
+        if agent == 0:
+            #pacman's turn
+            return self.max_value(gameState, agent, depth)
+        else:
+            #ghost's turn
+            return self.exp_value(gameState, agent, depth)
+
+        
+
+    #pacmans choice
+    def max_value(self, gameState: GameState, agent, depth = 0):
+
+         """
+         pseudo from slides:
+
+         def max-value(state):
+            initialize v = -o0
+            for each successor of state:
+            v = maxv, value(successor))
+            return v
+         """
+        #pacman turn
+
+        
+         v = float('-inf')
+        
+         legal_actions = gameState.getLegalActions(agent);
+
+         
+        #for every succesor state
+         for action in legal_actions:
+             successor = gameState.generateSuccessor(agent, action)
+
+             #pick value
+             v = max(v, self.value(successor, agent = 1, depth=depth))
+
+         return v
+
+
+
+    # Ghost 
+    def exp_value(self, gameState: GameState, agent, depth): #ghost
+        '''
+        def exp-value(state):
+            initialize v = 0
+            for each successor of state:
+            p = probability(successor)
+            v += p * value(successor)
+        return v
+        '''
+        
+        v = 0
+
+        legal_actions = gameState.getLegalActions(agent);
+
+        if not legal_actions:
+            return self.evaluationFunction(gameState)
+
+        #probability
+        p = (1.0/len(legal_actions))
+
+        #find next agent after turn  because there could be multiple ghosts :()
+        num_agents=gameState.getNumAgents()
+        next_agent = agent + 1
+        next_depth = depth;
+
+        #if not more agents then go back to pacman
+        if next_agent == num_agents:
+            '''
+                since no more exp agents we have to go to another rround and start with pacaman
+
+            '''
+            next_agent = 0
+            next_depth = depth + 1
+
+        
+        #for every action check the state of the agent in that action 
+        for action in legal_actions:
+
+            successor = gameState.generateSuccessor(agent, action)
+
+            # expected value 
+            v += p * self.value(successor, next_agent, next_depth) #redirect this value to decide if we use exp or max
+        
+        return v 
+        #util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
