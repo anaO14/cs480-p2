@@ -94,8 +94,9 @@ class ReflexAgent(Agent):
         total score of succesor state  = current score + min food distance - 500 every time is near a ghost - food left 
 
         """
-        for position in newGhostPos:
+        for ghostState in newGhostStates:
                   
+                  position = ghostState.getPosition()
                   ghost_distance = util.manhattanDistance(position, newPacPos)
         
                   if ghost_distance < 1:
