@@ -79,12 +79,11 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPacPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
-        newGhostPos = successorGameState.getGhostPosition()
+        newGhostPos = successorGameState.getGhostPositions()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         newNumFood = successorGameState.getNumFood()
-        #coordPairFood = successorGameState.hasFood()
+        newFood = successorGameState.getFood()
         coordPairFood = newFood.asList()
         
 
@@ -92,21 +91,26 @@ class ReflexAgent(Agent):
         score = successorGameState.getScore()
 
         # use manhattan distance formula to calcualte the distance between pacman, food, and ghosts
-        smallestDistance = float('inf')
+        smallestFoodDistance = float('inf')
+        smallestGhostDistance = float('inf')
 
         # check if pacman is close to food 
         #check if the list is empty 
         if coordPairFood:
-
             for coordinate in coordPairFood:
                 pacAndFoodDistance : int = util.manhattanDistance(newPacPos, coordinate)
-                if smallestDistance > pacAndFoodDistance:
-                    smallestDistance = pacAndFoodDistance
+                if smallestFoodDistance > pacAndFoodDistance:
+                    smallestFoodDistance = pacAndFoodDistance
 
         # check if pacman is close to ghosts 
         # check whether ghost is active or scared 
-        pacAndGhostDistance : int = util.manhattanDistance(newPacPos, newGhostPos)
-        
+        for ghostState in newGhostStates:
+                
+            pacAndGhostDistance : int = util.manhattanDistance(newPacPos, newGhostStates)
+            
+
+            
+
 
 
         # something good: being closer to food -> add to evaluation 
