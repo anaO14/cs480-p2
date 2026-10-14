@@ -80,7 +80,7 @@ class ReflexAgent(Agent):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPacPos = successorGameState.getPacmanPosition()
         newGhostStates = successorGameState.getGhostStates()
-        newGhostPos = successorGameState.getGhostPositions()
+        newGhostPos = successorGameState.getGhostPosition(1)
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         newNumFood = successorGameState.getNumFood()
         newFood = successorGameState.getFood()
@@ -106,7 +106,7 @@ class ReflexAgent(Agent):
         # check whether ghost is active or scared 
         for ghostState in newGhostStates:
                 
-            pacAndGhostDistance : int = util.manhattanDistance(newPacPos, newGhostStates)
+            pacAndGhostDistance : int = util.manhattanDistance(newPacPos, newGhostPos)
             
 
             
@@ -160,22 +160,6 @@ class MultiAgentSearchAgent(Agent):
         self.depth = int(depth)
 
 class MinimaxAgent(MultiAgentSearchAgent):
-        
-    # max value implementation - handles pacman's turn
-    # compares the values of possible successor states and returns the highest
-    def maxValue(gameState: GameState, agentIndex: int, currentDepth: int):
-    
-        return v
-    
-    
-    # min value implementation - ghosts 
-    # compares the values of possible successor states and returns the lowest
-    def minValue(gameState: GameState, agentIndex: int, currentDepth: int):
-
-
-        return v
-    
-
 
     # value implementation 
     # first checks whether the search should stop: depth limit is reached OR game has ended - pacman wins or loses before that limit 
@@ -189,7 +173,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         # check if the current depth reaches or exceeds the limit 
         # return evaluation score for the current state 
         if gameState.isWin() or gameState.isLose() or currentDepth >=  self.depth:
-            return self.evaluationFunction
+            return self.evaluationFunction(gameState)
         
         # if stopping check is false, decide whose turn it is
 
@@ -200,6 +184,52 @@ class MinimaxAgent(MultiAgentSearchAgent):
         else:
             return self.minValue(gameState, agentIndex, currentDepth)
 
+        
+    # max value implementation - handles pacman's turn
+    # compares the values of possible successor states and returns the highest
+    def maxValue(self, gameState: GameState, agentIndex: int, currentDepth: int):
+
+        highestValue = float('-inf')
+
+        # explore each legal pacman action and generate its successor state 
+        for action in gameState.getLegalActions(0):
+            successorGameState = gameState.generateSuccessor(0, action)
+
+            # evaluate successor 
+            successorValue = self.value(successorGameState, 1, currentDepth)
+            if successorValue > highestValue:
+                highestValue = successorValue
+
+
+        return highestValue
+    
+    
+    # min value implementation - ghosts 
+    # compares the values of possible successor states and returns the lowest
+    def minValue(self, gameState: GameState, agentIndex: int, currentDepth: int):
+
+        lowestValue = float('inf')
+
+        # explore each legal pacman action and generate its successor state 
+        # evaluate successor -> loop over current ghost's legal actions 
+        for action in gameState.getLegalActions(agentIndex):
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+
+            # need to check whether current ghost is the last agent -> if there are more ghosts
+            # depth is incremented
+            if agentIndex == gameState.getNumAgents() - 1:   
+                successorValue = self.value(successorGameState, 0, currentDepth + 1)
+                if successorValue < lowestValue:
+                    lowestValue = successorValue
+
+            # this isn't the last ghost
+            # depth does not change
+            else:
+                successorValue = self.value(successorGameState, agentIndex + 1, currentDepth)
+                if successorValue < lowestValue:
+                    lowestValue = successorValue
+            
+        return lowestValue
     
 
     def getAction(self, gameState: GameState):
@@ -225,7 +255,25 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
+        ""
+
+        highestValue = float('-inf')
+        bestAction = None
+
+        # explore each legal pacman action and generate its successor state 
+        for action in gameState.getLegalActions(0):
+            successorGameState = gameState.generateSuccessor(0, action)
+
+            # evaluate successor 
+            successorValue = self.value(successorGameState, 1, 0)
+            if successorValue > highestValue:
+                highestValue = successorValue
+                bestAction = action
+
+
+        return bestAction
+
+
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
