@@ -120,12 +120,12 @@ class ReflexAgent(Agent):
 
 
 
-        print("grid of new food:", newFood)
-        print("number of new food:", newNumFood)
-        print("coordinate pair of new food:", coordPairFood)
-        print("position of pacman after moving:", newPacPos)
-        print("number of moves that each ghost will remain scared after pacman ate a power pallet:", newScaredTimes)
-        print("new ghost states: ", newGhostStates)
+        #print("grid of new food:", newFood)
+        #print("number of new food:", newNumFood)
+        #print("coordinate pair of new food:", coordPairFood)
+        #print("position of pacman after moving:", newPacPos)
+        #print("number of moves that each ghost will remain scared after pacman ate a power pallet:", newScaredTimes)
+        #print("new ghost states: ", newGhostStates)
 
         return successorGameState.getScore()
 
@@ -230,9 +230,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     lowestValue = successorValue
             
         return lowestValue
-
-        
-
     
 
     def getAction(self, gameState: GameState):
@@ -282,11 +279,102 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    # alpha: the best value MAX can secure so far
+    # beta: the best lowest value MIN can secure so far 
+    # if alpha > beta, prune 
+    # if alpha == beta, keep exploring 
+
+    def value(self, gameState: GameState, agentIndex: int, currentDepth: int, alpha: float, beta: float):
+
+        # check if the game has ended 
+        # check if the current depth reaches or exceeds the limit 
+        # return evaluation score for the current state 
+        if gameState.isWin() or gameState.isLose() or currentDepth >=  self.depth:
+            return self.evaluationFunction(gameState)
+        
+        # if stopping check is false, decide whose turn it is
+
+        # pacman's turn 
+        if agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, currentDepth, alpha, beta)
+        # ghost's turn 
+        else:
+            return self.minValue(gameState, agentIndex, currentDepth, alpha, beta)
+
+
+    # MAX updates alpha 
+    def maxValue(self, gameState: GameState, agentIndex: int, currentDepth: int, alpha: float, beta: float):
+
+        highestValue = float('-inf')
+
+        # explore each legal pacman action and generate its successor state 
+        for action in gameState.getLegalActions(0):
+            successorGameState = gameState.generateSuccessor(0, action)
+
+            # evaluate successor 
+            successorValue = self.value(successorGameState, 1, currentDepth, alpha, beta)
+            if successorValue > highestValue:
+                highestValue = successorValue
+
+            # after updating its best value, return early if highestValue > beta
+            # if no pruning happens, set alpha to the larger of alpha and highestValue 
+            if highestValue > beta:
+                # prune
+                return highestValue
+            alpha = max(alpha, highestValue)
+         
+        return highestValue
+    
+    # MIN updates beta
+    def minValue(self, gameState: GameState, agentIndex: int, currentDepth: int, alpha: float, beta: float):
+
+        lowestValue = float('inf')
+
+        # explore each legal pacman action and generate its successor state 
+        # evaluate successor -> loop over current ghost's legal actions 
+        for action in gameState.getLegalActions(agentIndex):
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+
+            # need to check whether current ghost is the last agent -> if there are more ghosts
+            # depth is incremented
+            if agentIndex == gameState.getNumAgents() - 1:   
+                successorValue = self.value(successorGameState, 0, currentDepth + 1, alpha, beta)
+
+            # this isn't the last ghost
+            # depth does not change
+            else:
+                successorValue = self.value(successorGameState, agentIndex + 1, currentDepth, alpha, beta)
+
+            lowestValue = min(lowestValue, successorValue)
+            if lowestValue < alpha:
+                return lowestValue
+
+            beta = min(beta, lowestValue)
+
+        return lowestValue
+
     def getAction(self, gameState: GameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
+        ""
+        alpha = float('-inf')
+        beta = float('inf')
+        highestValue = float('-inf')
+        bestAction = None
+
+        # explore each legal pacman action and generate its successor state 
+        for action in gameState.getLegalActions(0):
+            successorGameState = gameState.generateSuccessor(0, action)
+
+            # evaluate successor 
+            successorValue = self.value(successorGameState, 1, 0, alpha, beta)
+            if successorValue > highestValue:
+                highestValue = successorValue
+                bestAction = action
+            alpha = max(alpha, highestValue)
+
+        return bestAction
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
