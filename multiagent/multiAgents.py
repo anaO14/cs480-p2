@@ -12,7 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 # Ana Ortiz 01524018
-# Alexa Zambrano 
+# Alexa Zambrano  G01468090
 
 
 from util import manhattanDistance
@@ -87,47 +87,39 @@ class ReflexAgent(Agent):
         coordPairFood = newFood.asList()
         
 
-        score: int
-        score = successorGameState.getScore()
+        total_score: int
+        total_score = successorGameState.getScore()
 
-        # use manhattan distance formula to calcualte the distance between pacman, food, and ghosts
-        smallestFoodDistance = float('inf')
-        smallestGhostDistance = float('inf')
+        """
+        total score of succesor state  = current score + min food distance - 500 every time is near a ghost - food left 
 
-        # check if pacman is close to food 
-        #check if the list is empty 
-        if coordPairFood:
-            for coordinate in coordPairFood:
-                pacAndFoodDistance : int = util.manhattanDistance(newPacPos, coordinate)
-                if smallestFoodDistance > pacAndFoodDistance:
-                    smallestFoodDistance = pacAndFoodDistance
-
-        # check if pacman is close to ghosts 
-        # check whether ghost is active or scared 
-        for ghostState in newGhostStates:
-                
-            pacAndGhostDistance : int = util.manhattanDistance(newPacPos, newGhostStates)
-            
-
-            
-
-
-
-        # something good: being closer to food -> add to evaluation 
-
-        # something not good: being close to an active ghost -> subtract from the evaluation 
+        """
+        for position in newGhostPos:
+                  
+                  ghost_distance = util.manhattanDistance(position, newPacPos)
         
+                  if ghost_distance < 1:
+                    total_score -= 500
 
+        min_distance = 100000
 
+        for position in coordPairFood:
+    
+             min_distance = min(util.manhattanDistance(position, newPacPos), min_distance)
+        total_score += 10.0 / min_distance
+            
 
-        print("grid of new food:", newFood)
+        total_score -= newNumFood
+
+        
+        '''print("grid of new food:", newFood)
         print("number of new food:", newNumFood)
         print("coordinate pair of new food:", coordPairFood)
         print("position of pacman after moving:", newPacPos)
         print("number of moves that each ghost will remain scared after pacman ate a power pallet:", newScaredTimes)
-        print("new ghost states: ", newGhostStates)
+        print("new ghost states: ", newGhostStates)'''
 
-        return successorGameState.getScore()
+        return total_score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
